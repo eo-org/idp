@@ -1,0 +1,41 @@
+<?php echo $this->doctype(); ?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >
+<title><?=$this->pageTitle ?></title>
+
+<link rel="stylesheet" href="<?=$this->envConfig('extUrl')?>/reset-backend.css" type="text/css" media="screen, projection">
+<link rel="stylesheet" href="<?=$this->envConfig('libUrl')?>/admin/style/backend.css" type="text/css" media="screen" rel="stylesheet">
+
+<link rel="stylesheet" href="<?=$this->envConfig('extUrl')?>/brick/toolbar/toolbar.css" type="text/css" media="screen" rel="stylesheet">
+<link rel="stylesheet" href="<?=$this->envConfig('extUrl')?>/brick/action-title/action-title.css" type="text/css" media="screen" rel="stylesheet">
+<link rel="stylesheet" href="<?=$this->envConfig('extUrl')?>/brick/action-menu/action-menu.css" type="text/css" media="screen" rel="stylesheet">
+<link rel="stylesheet" href="<?=$this->envConfig('extUrl')?>/app/data.css" type="text/css" media="screen, projection">
+<? echo $this->headLink() ?>
+<script type="text/javascript" src="<?=$this->envConfig('extUrl')?>/jub.js"></script>
+<script type="text/javascript" src="<?=$this->envConfig('extUrl')?>/brick/toolbar/toolbar.js"></script>
+<script type="text/javascript" src="<?=$this->envConfig('extUrl')?>/brick/action-menu/action-menu.js"></script>
+<? echo $this->headScript() ?>
+</head>
+
+<body>
+<div class='body_head'>
+	<?php echo $this->brickViewList['head_toolbar'] ?>
+</div>
+
+<div class='body_action'>
+	<?php echo $this->brickViewList['body_action'] ?>
+</div>
+
+<div class='body_action_frame'>
+	<?=$this->layout()->content ?>
+</div>
+
+<div class='footer'>
+	<hr />
+	<div class='power'>
+		powered by <a href='http://www.enorange.com'>Enorange Ltd</a>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,10 @@
+<?php if($this->userId != null) {?>
+<ul>
+	<li><?php echo $this->userId?></li>
+	<?php foreach($this->userData as $key => $val) { ?>
+	<li><?php echo $key?> : <?php echo $val ?></li>
+	<?php } ?>
+</ul>
+<?php } else {?>
+USER NOT LOGIN
+<?php }?>
