@@ -2,7 +2,8 @@
 return array(
 	'controllers' => array(
 		'invokables' => array(
-			'Sso\IndexController' => 'Sso\Controller\IndexController',
+			'Sso\IndexController'		=> 'Sso\Controller\IndexController',
+			'Sso\ValidateController'	=> 'Sso\Controller\ValidateController'
 		)
 	),
 	'router' => array(
@@ -61,6 +62,22 @@ return array(
 				),
 				'may_terminate' => true,
     		),
+			'validate' => array(
+				'type' => 'segment',
+				'options' => array(
+					'route' => '/validate[/:action][.:format]',
+					'defaults' => array(
+						'controller' => 'Sso\ValidateController',
+						'action'	=>'index',
+						'format' => 'ajax',
+					),
+					'constraints' => array(
+						'format' => '(ajax)',
+						'action' => '[a-z-]*'
+					)
+				),
+				'may_terminate' => true,
+			)
 		),
 	),
 	'view_manager' => array(
@@ -80,6 +97,8 @@ return array(
 			'sso/index/login'			=> __DIR__ . '/../view/sso/index/login.phtml',
 			'sso/index/read-token'		=> __DIR__ . '/../view/sso/index/read-token.xml.phtml',
 			'sso/index/info'			=> __DIR__ . '/../view/sso/index/info.xml.phtml',
+			
+			'sso/validate/login-name-available'	=> __DIR__ . '/../view/validate/terminal.phtml',
 			
 			'mail/layout'				=> __DIR__ . '/../view/mail/layout.phtml',
 			'mail/user-register'		=> __DIR__ . '/../view/mail/user-register.phtml'

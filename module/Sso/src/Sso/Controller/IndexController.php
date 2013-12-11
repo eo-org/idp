@@ -3,7 +3,7 @@ namespace Sso\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel, Zend\View\Model\JsonModel, Zend\View\Model\FeedModel;
-use Zend\Json\Json;
+//use Zend\Json\Json;
 use Sso\Form\Index\LoginForm, Sso\Validator, Sso\RemoteUserCookie;
 use Account\Document\Token, Account\Document\User;
 
@@ -13,76 +13,10 @@ class IndexController extends AbstractActionController
 {
     public function indexAction()
     {
-    	
-
     	/**
-    	 * send email after user register!!
+    	 * @todo send email after user register!!
     	 */
 
-//     	$resolver = $this->getEvent()->getApplication()->getServiceManager()->get('Zend\View\Resolver\TemplateMapResolver');
-    	 
-    	 
-    	 
-//     	$view = new \Zend\View\Renderer\PhpRenderer();
-    	 
-//     	$view->setResolver($resolver);
-    	 
-//     	$viewModel = new \Zend\View\Model\ViewModel();
-    	 
-    	 
-//     	$viewModel->setTemplate('mail/user-register')
-//     	->setVariables(array(
-//     		'loginName' => 'gaga@gege.com'
-//     	));
-    	 
-//     	$messageBody = $view->render($viewModel);
-    	
-    	
-    	
-    	
-    	
-    	
-    	
-    	
-    	
-//     	$sesClient = SesClient::factory(array(
-//     		'key'		=> 'AKIAIA6ZU2J7SYJMQS3A',
-//     		'secret'	=> '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',
-//     		'region'	=> 'us-east-1'
-//     	));
-    	
-//     	try {
-//     		$sesClient->sendEmail(array(
-//     			'Source'		=> 'no-reply@enorange.com',
-//     			'Destination'	=> array(
-//     				'ToAddresses' => array('craftgavin@gmail.com')
-//     			),
-//     			'Message'		=> array(
-//     				'Subject' => array(
-//     					'Data' => 'a test email send from aws ses!',
-//     					'Charset' => 'UTF-8'
-//     				),
-//     				'Body' => array(
-//     					'Html' => array(
-//     						'Data' => $messageBody,
-//     						'Charset' => 'UTF-8',
-//     					),
-//     				),
-//     			),
-//     			'ReplyToAddress' => array('no-reply@enorange.com'),
-//     		));
-//     	} catch( Exception $e ) {
-//     		echo $e->getMessage();
-//     	}
-    	
-    	
-    	
-    	
-    	
-    	
-    	
-    	
-    	
     	$csr = new RemoteUserCookie();
     	if($csr->isLogin()) {
     		$userId = $csr->getUserId();
@@ -126,8 +60,7 @@ class IndexController extends AbstractActionController
     	} else {
 	    	$jsonModel = new JsonModel(array(
 	    		'result' => 'fail',
-	    		'errorMsg' => 'user '.$loginName.' already registered!',
-	    		'errorCode' => 1
+	    		'errorCode' => 'user-existed'
 	    	));
     	}
     	return $jsonModel;
@@ -164,13 +97,13 @@ class IndexController extends AbstractActionController
     		$sm = $this->getServiceLocator();
     		$dm = $sm->get('DocumentManager');
     		$result = $csr->encryptLogin($postLoginName, $postLoginPass, $tokenId, $dm);
-    		if($result === false) {
-    			header("Location: ".$loginUrl."?errorCode=user-not-found");
-    			exit(0);
-    		} else {
+    		if($result === true) {
     			$tokenContent = $csr->getUserData();
     			$this->generateToken($tokenId, $tokenContent);
     			header("Location: ".$loginUrl."?tokenReady=ready");
+    			exit(0);
+    		} else {
+    			header("Location: ".$loginUrl."?errorCode=$result&requestLoginName=$postLoginName");
     			exit(0);
     		}
     	}

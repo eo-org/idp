@@ -77,7 +77,7 @@ class RemoteUserCookie
 			$pass = $userDoc->getPassword();
 			$apiKey = Validator::SERVICE_CMS_KEY;
 			if($encryptPass != md5($salt.$loginName.$pass.$apiKey)) {
-				return false;
+				return 'password-not-match';
 			}
 			
 			$this->userId = $userDoc->getId();
@@ -89,7 +89,7 @@ class RemoteUserCookie
 			$this->_isLogin = true;
 			return true;
 		} else {
-			return false;
+			return 'user-not-found';
 		}
 	}
 	
