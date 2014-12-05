@@ -1,8 +1,9 @@
 <?php
+$localConfig = include '../config/autoload/local.php';
+
+define("BASE_PATH", $localConfig['env']['base_path']);
+
 chdir(dirname(__DIR__));
-
-define("BASE_PATH", getenv('BASE_PATH'));
-
 include BASE_PATH.'/inc/Zend/Loader/StandardAutoloader.php';
 
 $autoLoader = new Zend\Loader\StandardAutoloader(array(

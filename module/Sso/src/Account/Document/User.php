@@ -23,6 +23,9 @@ class User extends AbstractDocument
 	protected $password;
 	
 	/** @ODM\Field(type="string")  */
+	protected $roleId;
+	
+	/** @ODM\Field(type="string")  */
 	protected $email;
 	
 	/** @ODM\Field(type="string")  */

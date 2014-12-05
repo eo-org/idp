@@ -13,6 +13,12 @@ class Module implements BootstrapListenerInterface
 {
 	public function onBootstrap(EventInterface $event)
 	{
+		$application = $event->getTarget();
+		$sm = $application->getServiceManager();
+		
+		$fileConfig = $sm->get('Config');
+		$env = $fileConfig['env'];
+		
 		AnnotationDriver::registerAnnotationClasses();
 		$config = new Configuration();
 		$config->setDefaultDB('account_idp');
@@ -23,9 +29,10 @@ class Module implements BootstrapListenerInterface
 		$config->setHydratorNamespace('DoctrineMongoHydrator');
 		$config->setMetadataDriverImpl(AnnotationDriver::create(__DIR__ . '/../../doctrineCache/class'));
 		
-		$config->setAutoGenerateHydratorClasses(true);
-		$config->setAutoGenerateProxyClasses(true);
-		
+		if($env['usage']['server'] == 'production') {
+			$config->setAutoGenerateHydratorClasses(false);
+			$config->setAutoGenerateProxyClasses(false);
+		}
 		$connection = new Connection('127.0.0.1', array(
 			'username' => 'craftgavin',
 			'password' => 'whothirstformagic?',

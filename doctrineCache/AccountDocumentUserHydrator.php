@@ -52,6 +52,14 @@ class AccountDocumentUserHydrator implements HydratorInterface
         }
 
         /** @Field(type="string") */
+        if (isset($data['roleId'])) {
+            $value = $data['roleId'];
+            $return = (string) $value;
+            $this->class->reflFields['roleId']->setValue($document, $return);
+            $hydratedData['roleId'] = $return;
+        }
+
+        /** @Field(type="string") */
         if (isset($data['email'])) {
             $value = $data['email'];
             $return = (string) $value;

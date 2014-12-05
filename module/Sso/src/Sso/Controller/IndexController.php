@@ -3,11 +3,10 @@ namespace Sso\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel, Zend\View\Model\JsonModel, Zend\View\Model\FeedModel;
-//use Zend\Json\Json;
 use Sso\Form\Index\LoginForm, Sso\Validator, Sso\RemoteUserCookie;
 use Account\Document\Token, Account\Document\User;
 
-use Aws\Ses\SesClient;
+use Sso\CookieUser;
 
 class IndexController extends AbstractActionController
 {
@@ -17,10 +16,10 @@ class IndexController extends AbstractActionController
     	 * @todo send email after user register!!
     	 */
 
-    	$csr = new RemoteUserCookie();
-    	if($csr->isLogin()) {
-    		$userId = $csr->getUserId();
-    		$userData = $csr->getUserData();
+    	$cu = new CookieUser();
+    	if($cu->isLogin()) {
+    		$userId = $cu->getUserId();
+    		$userData = $cu->getUserData();
     		return array(
     			'userId' => $userId,
     			'userData' => $userData
@@ -33,38 +32,38 @@ class IndexController extends AbstractActionController
     	}
     }
     
-    public function registerAction()
-    {
-    	$postData = $this->getRequest()->getPost();
+//     public function registerAction()
+//     {
+//     	$postData = $this->getRequest()->getPost();
     	
-    	$loginName = $postData['loginName'];
-    	$password = $postData['password'];
+//     	$loginName = $postData['loginName'];
+//     	$password = $postData['password'];
     	
-    	$sm = $this->getServiceLocator();
-    	$dm = $sm->get('DocumentManager');
+//     	$sm = $this->getServiceLocator();
+//     	$dm = $sm->get('DocumentManager');
     	 
-    	$userDoc = $dm->getRepository('Account\Document\User')->findOneByLoginName($loginName);
+//     	$userDoc = $dm->getRepository('Account\Document\User')->findOneByLoginName($loginName);
     	
-    	if(is_null($userDoc)) {
-    		$userDoc = new User();
-    		$userDoc->exchangeArray($postData);
-    		$dm->persist($userDoc);
-    		$dm->flush();
+//     	if(is_null($userDoc)) {
+//     		$userDoc = new User();
+//     		$userDoc->exchangeArray($postData);
+//     		$dm->persist($userDoc);
+//     		$dm->flush();
     		
-    		$tokenId = $postData['token'];
-    		$jsonModel = new JsonModel(array(
-    			'result' => 'success',
-    			'userId' => $userDoc->getId(),
-    			'userLoginName' => $loginName
-    		));
-    	} else {
-	    	$jsonModel = new JsonModel(array(
-	    		'result' => 'fail',
-	    		'errorCode' => 'user-existed'
-	    	));
-    	}
-    	return $jsonModel;
-    }
+//     		$tokenId = $postData['token'];
+//     		$jsonModel = new JsonModel(array(
+//     			'result' => 'success',
+//     			'userId' => $userDoc->getId(),
+//     			'userLoginName' => $loginName
+//     		));
+//     	} else {
+// 	    	$jsonModel = new JsonModel(array(
+// 	    		'result' => 'fail',
+// 	    		'errorCode' => 'user-existed'
+// 	    	));
+//     	}
+//     	return $jsonModel;
+//     }
     
     public function loginAction()
     {
@@ -90,37 +89,48 @@ class IndexController extends AbstractActionController
     		throw new \Exception('Sig Error');
     	}
     	
-    	$csr = new RemoteUserCookie();
+    	$cu = new CookieUser();
+    	
+//     	if($cu->isLogin()) {
+    		
+//     	} else {
+//     		echo "login 表单";
+//     	}
+    	
+//     	die();
+    	
+//     	$csr = new RemoteUserCookie();
     	
     	//post data login with encrypted password, may login with another account
-    	if(!empty($postLoginName) && !empty($postLoginPass)) {
-    		$sm = $this->getServiceLocator();
-    		$dm = $sm->get('DocumentManager');
-    		$result = $csr->encryptLogin($postLoginName, $postLoginPass, $tokenId, $dm);
-    		if($result === true) {
-    			$tokenContent = $csr->getUserData();
-    			$this->generateToken($tokenId, $tokenContent);
-    			header("Location: ".$loginUrl."?tokenReady=ready");
-    			exit(0);
-    		} else {
-    			header("Location: ".$loginUrl."?errorCode=$result&requestLoginName=$postLoginName");
-    			exit(0);
-    		}
-    	}
+//     	if(!empty($postLoginName) && !empty($postLoginPass)) {
+//     		$sm = $this->getServiceLocator();
+//     		$dm = $sm->get('DocumentManager');
+//     		$result = $csr->encryptLogin($postLoginName, $postLoginPass, $tokenId, $dm);
+//     		if($result === true) {
+//     			$tokenContent = $csr->getUserData();
+//     			$this->generateToken($tokenId, $tokenContent);
+//     			header("Location: ".$loginUrl."?tokenReady=ready");
+//     			exit(0);
+//     		} else {
+//     			header("Location: ".$loginUrl."?errorCode=$result&requestLoginName=$postLoginName");
+//     			exit(0);
+//     		}
+//     	}
     	
     	//logged in already, generate new token and go back token consumer
-    	if($csr->isLogin()) {
-    		$userData = $csr->getUserData();
+    	if($cu->isLogin()) {
+    		$userData = $cu->getUserData();
     		$this->generateToken($tokenId, $userData);
+    		//print_r($userData);
     		header("Location: ".$loginUrl."?tokenReady=ready");
     		exit(0);
     	}
     	
     	//go back to a remote login page
-    	if(!empty($loginUrl)) {
-    		header("Location: ".$loginUrl);
-    		exit(0);
-    	}
+//     	if(!empty($loginUrl)) {
+//     		header("Location: ".$loginUrl);
+//     		exit(0);
+//     	}
     	
     	$form = new LoginForm();
     	$errorMsg = array();
@@ -128,12 +138,13 @@ class IndexController extends AbstractActionController
     		$postData = $this->getRequest()->getPost();
     		$form->setData($postData);
     		if($form->isValid()) {
-	    		$cookieData = $csr->login($form->getData(), $dm);
+    			$dm = $this->getServiceLocator()->get('DocumentManager');
+	    		$cookieData = $cu->login($form->getData(), $dm);
 	    		if($cookieData === false) {
 	    			$errorMsg[] = "用户密码错误";
 	    		} else {
-	    			$tokenContent = $csr->getUserData();
-    				$this->generateToken($tokenId, $tokenContent);
+	    			$userData = $cu->getUserData();
+    				$this->generateToken($tokenId, $userData);
 	    			header("Location: ".$loginUrl."?tokenReady=ready");
 	    			exit(0);
 	    		}
@@ -166,7 +177,7 @@ class IndexController extends AbstractActionController
     			$this->getResponse()->setStatusCode(200);
     			$userData = $tokenDoc->getUserData();
     			$viewModel->setVariables(array(
-    				'userId' => $userData['userId'],
+    				'userId' => $userData['id'],
     				'userData' => $userData
     			));
     			$dm->remove($tokenDoc);
@@ -184,9 +195,10 @@ class IndexController extends AbstractActionController
     {
     	$retUrl = $this->params()->fromQuery('ret');
     	
-    	$csr = new RemoteUserCookie();
-    	$csr->logout();
-    	
+    	$cu = new CookieUser();
+    	$cu->logout();
+    	echo 'user logout';
+    	die();
     	header("Location: ".$retUrl);
     	exit(0);
     }

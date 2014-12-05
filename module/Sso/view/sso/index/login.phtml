@@ -1,6 +1,6 @@
 <div class='login-page'>
 	<div class='head'>
-		用户登陆
+		设计师登陆
 	</div>
 	
 	<ul class='errorMsg'>
@@ -9,7 +9,34 @@
 	<?php }?>
 	</ul>
 	
-	<?php echo $this->singleForm($this->form) ?>
+	<?php
+		$form = $this->form;
+		$form->prepare();
+		$form->setAttribute('method', 'post');
+		$formLabel = $this->plugin('formLabel');
+	?>
+	<?php echo $this->form()->openTag($form);?>
+		<div class="form_element">
+		<?php
+		    $name = $form->get('loginName');
+		    echo $formLabel->openTag() . $name->getOption('label');
+		    echo $this->formInput($name);
+		    echo $this->formElementErrors($name);
+		    echo $formLabel->closeTag();
+		?></div>
+		
+		<div class="form_element">
+		<?php
+		    $subject = $form->get('password');
+		    echo $formLabel->openTag() . $subject->getOption('label');
+		    echo $this->formInput($subject);
+		    echo $this->formElementErrors($subject);
+		    echo $formLabel->closeTag();
+		?></div>
+		<div>
+			<input type='submit' name='submit' value='登录' />
+		</div>
+		<?php echo $this->form()->closeTag() ?>
 	
 	<hr />
 </div>
