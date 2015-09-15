@@ -34,9 +34,9 @@ class Module implements BootstrapListenerInterface
 			$config->setAutoGenerateProxyClasses(false);
 		}
 		$connection = new Connection('127.0.0.1', array(
-			'username' => 'craftgavin',
-			'password' => 'whothirstformagic?',
-			'db' => 'admin'
+			'username' => $env['idp_db']['username'],
+			'password' => $env['idp_db']['password'],
+			'db' => $env['idp_db']['db'],
 		));
 		$connection->initialize();
 		
